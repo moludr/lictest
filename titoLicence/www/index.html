@@ -1,0 +1,488 @@
+<html>
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+
+
+<style>
+  #divLoading {
+    display: none;
+  }
+
+  #divLoading.show {
+    display: block;
+    position: fixed;
+    z-index: 100;
+    background-image: url('http://loadinggif.com/images/image-selection/3.gif');
+    background-color: #666;
+    opacity: 0.4;
+    background-repeat: no-repeat;
+    background-position: center;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    top: 0;
+  }
+
+  #loadinggif.show {
+    left: 50%;
+    top: 50%;
+    position: absolute;
+    z-index: 101;
+    width: 32px;
+    height: 32px;
+    margin-left: -16px;
+    margin-top: -16px;
+  }
+
+  div.content {
+    width: 1000px;
+    height: 1000px;
+  }
+  .checkbox{
+    width: 40px;
+    height: 30px;
+  }
+  #licenceTable {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#licenceTable td, #licenceTable th {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+#licenceTable tr:nth-child(even){background-color: #f2f2f2;}
+
+#licenceTable tr:hover {background-color: #ddd;}
+
+#licenceTable th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+}
+.detaildiv{
+  padding: 10px;
+  margin-top: 24px;
+  font-size: 20px;
+}
+.center{
+  text-align: center;
+}
+
+</style>
+</head>
+
+
+<body ng-app="myApp">
+<div ng-controller="MainCtrl" class="container">
+  <button ng-if="GrantTab !='grantLicence'" ng-click="toggelView('grantLicence')" style="float: right" class="btn btn-success">Grant
+    Licence</button>
+  <button ng-if="GrantTab !='ViewLicence'" ng-click="toggelView('ViewLicence')" style="float: right" class="btn btn-success">View
+    Licence</button>
+  <button ng-if="GrantTab!='tito'" ng-click="toggelView('tito')" style="float: right" class="btn btn-success">Tito
+    Licence</button>
+  <button ng-if="GrantTab!='ViewTitoLicence'"  ng-click="toggelView('ViewTitoLicence')" style="float: right" class="btn btn-success">View Tito
+    Licence</button>
+  <div ng-if="GrantTab ==='grantLicence' ">
+    <h1>Grant Licence</h1>
+    <form role="form" name="clientInfoForm" class="content">
+      <div class="form-group">
+        <label for="serverId">server ID</label>
+        <input type="text" class="form-control" placeholder="xx-xx-xx-xx-xx-xx" id="serverId" ng-keydown="changeSID($event)"
+          ng-model="clientInfo.serverId" required />
+        <span ng-show="formSubmitted && clientInfoForm.serverId.$invalid">ServerId is required.</span>
+      </div>
+      <div class="form-group">
+        <label for="clientId">client ID</label>
+        <input type="text" class="form-control" placeholder="xx-xx-xx-xx-xx-xx" id="clientId" ng-keydown="changeCID($event)"
+          ng-model="clientInfo.clientId" required />
+        <span ng-show="formSubmitted && clientInfoForm.clientId.$invalid">clientId is required.</span>
+      </div>
+      <div class="form-group">
+        <label for="appType">App Name</label>
+        <input type="text" class="form-control" id="appType" placeholder="retail" ng-model="clientInfo.appType"
+          required />
+        <span ng-show="formSubmitted && clientInfoForm.appType.$invalid">appType is required.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="dateOfLicense">Licence start date</label>
+        <input type="date" class="form-control" id="dateOfLicense" placeholder="30" ng-model="clientInfo.dateOfLicense"
+          required />
+        <span ng-show="formSubmitted && clientInfoForm.dateOfLicense.$invalid">Start Date is required.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="appName">numberOfDays</label>
+        <input type="number" class="form-control" id="numberOfDays" placeholder="30" ng-model="clientInfo.numberOfDays"
+          required />
+        <span ng-show="formSubmitted && clientInfoForm.numberOfDays.$invalid">validity is required.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="appName">Trial</label>
+        <input type="checkbox" class="checkbox" id="isTrial" ng-model="clientInfo.isTrial" ng-init="clientInfo.isTrial=true"
+          ng-true-value="true" ng-false-value="false" />
+        <span ng-show="formSubmitted && clientInfoForm.isTrial.$invalid">isTrial is required.</span>
+      </div>
+
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" id="password" placeholder="password" ng-model="clientInfo.password"
+          required />
+        <span ng-show="formSubmitted && clientInfoForm.password.$invalid">password is required.</span>
+      </div>
+      <div ng-show="loading" id="divLoading" class="show"></div>
+      <button type="submit" ng-click="grantLicence(clientInfoForm,clientInfo)" class="btn btn-success">Submrriit</button>
+    </form>
+  </div>
+
+
+  <div ng-if="GrantTab ==='ViewLicence'">
+    <h1>View Licence</h1>
+    <form role="form" name="gLInfoForm" class="content">
+      <div class="form-group">
+        <label for="serverId">server ID</label>
+        <input type="text" class="form-control" placeholder="xx-xx-xx-xx-xx-xx" id="serverId" ng-keydown="changeSID($event)"
+          ng-model="gLInfo.serverId" required />
+        <span ng-show="formSubmitted && gLInfoForm.serverId.$invalid">ServerId is required.</span>
+      </div>
+      <div class="form-group">
+        <label for="clientId">client ID</label>
+        <input type="text" class="form-control" placeholder="xx-xx-xx-xx-xx-xx" id="clientId" ng-keydown="changeCID($event)"
+          ng-model="gLInfo.clientId"  />
+        <span ng-show="formSubmitted && gLInfoForm.clientId.$invalid">clientId is required.</span>
+      </div>
+      <div class="form-group">
+        <label for="appType">App Name</label>
+        <input type="text" class="form-control" id="appType" placeholder="retail" ng-model="gLInfo.appType" required />
+        <span ng-show="formSubmitted && gLInfoForm.appType.$invalid">appType is required.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" id="password" placeholder="password" ng-model="gLInfo.password"
+          required />
+        <span ng-show="formSubmitted && gLInfoForm.password.$invalid">password is required.</span>
+      </div>
+      <div ng-show="loading" id="divLoading" class="show"></div>
+      <button type="submit" ng-click="getLicence(gLInfoForm,gLInfo)" class="btn btn-success">Submit</button>
+    </form>
+    <hr>
+    <div ng-repeat="lic in licenceResultArray">
+        <h3 class="center bold"><b>{{lic.ip}}</b></h3>  
+      <table id="licenceTable"  >
+            <tr ng-if="licenceResultArray">
+              <th>Client Id</th>
+              <th>Is Trial</th>
+              <th>licence Start Date</th>
+              <th>Validity</th>
+              <th>Client Type</th>
+            </tr>
+            <tr ng-repeat="data in lic.data" >
+              <td>{{data.clientId?data.clientId:data.uuid}}</td>
+              <td>{{data.isTrial}}</td>
+              <td>{{data.licStartDate}}</td>
+              <td>{{data.validity}}</td>
+              <td>{{data.clientType?data.clientType:'MobileApp'}}</td> 
+            </tr> 
+      </table>
+    </div>
+  </div>
+
+  <div ng-if="GrantTab ==='tito' ">
+    <h1>Tito Licence</h1>
+    <form role="form" name="clientInfoForm" class="content">
+      <div class="form-group">
+        <label for="serverId">Company RegistrationId</label>
+        <input type="text" class="form-control" placeholder="5123xxxxxxxx" id="serverId" ng-keydown="changeSID($event)"
+          ng-model="clientInfo.serverId" required />
+        <span ng-show="formSubmitted && clientInfoForm.serverId.$invalid">RegistrationId is required.</span>
+      </div>
+      <div class="form-group">
+        <label for="clientId">client ID</label>
+        <input type="text" class="form-control" placeholder="licence_5421xxxxxxx" id="clientId" ng-keydown="changeCID($event)"
+          ng-model="clientInfo.clientId" required />
+        <span ng-show="formSubmitted && clientInfoForm.clientId.$invalid">clientId is required.</span>
+      </div>
+      <div class="form-group">
+        <label for="appType">App Name</label>
+        <input type="text" class="form-control" id="appType" placeholder="retail" ng-model="clientInfo.appType ='tito'"
+          required disabled />
+        <span ng-show="formSubmitted && clientInfoForm.appType.$invalid">appType is required.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="dateOfLicense">Licence start date</label>
+        <input type="date" class="form-control" id="dateOfLicense" placeholder="30" ng-model="clientInfo.dateOfLicense"
+          required />
+        <span ng-show="formSubmitted && clientInfoForm.dateOfLicense.$invalid">Start Date is required.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="appName">numberOfDays</label>
+        <input type="number" class="form-control" id="numberOfDays" placeholder="30" ng-model="clientInfo.numberOfDays"
+          required />
+        <span ng-show="formSubmitted && clientInfoForm.numberOfDays.$invalid">validity is required.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="appName">Trial</label>
+        <input type="checkbox" class="checkbox" id="isTrial" ng-model="clientInfo.isTrial" ng-init="clientInfo.isTrial=true"
+          ng-true-value="true" ng-false-value="false" />
+        <span ng-show="formSubmitted && clientInfoForm.isTrial.$invalid">isTrial is required.</span>
+      </div>
+
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" id="password" placeholder="password" ng-model="clientInfo.password"
+          required />
+        <span ng-show="formSubmitted && clientInfoForm.password.$invalid">password is required.</span>
+      </div>
+      <div ng-show="loading" id="divLoading" class="show"></div>
+      <button type="submit" ng-click="grantLicence(clientInfoForm,clientInfo)" class="btn btn-success">Submit</button>
+    </form>
+  </div>
+  <div ng-if="GrantTab ==='ViewTitoLicence' ">
+    <h1>View Tito Licence</h1>
+      <form role="form" name="clientInfoForm" class="content">
+      <div class="form-group">
+        <label for="registrationName">Registration Name</label>
+        <input type="text" class="form-control" placeholder="5123xxxxxxxx" id="registrationName" 
+          ng-model="clientInfo.registrationName" required />
+        <span ng-show="formSubmitted && clientInfoForm.registrationName.$invalid">Registration Name is required.</span>
+      </div>
+      <div class="form-group">
+        <label for="licenceId">Licence Id</label>
+        <input type="text" class="form-control" placeholder="licence_5421xxxxxxx" id="licenceId" ng-keydown="changeCID($event)"
+          ng-model="clientInfo.licenceId"  />
+        <span ng-show="formSubmitted && clientInfoForm.licenceId.$invalid">clientId is required.</span>
+      </div>
+      <div class="form-group">
+        <label for="appType">App Type</label>
+        <input type="text" class="form-control" id="appType" placeholder="retail" ng-model="clientInfo.appType ='tito'"
+            disabled />
+        <span ng-show="formSubmitted && clientInfoForm.appType.$invalid">appType is required.</span>
+      </div>
+      <div ng-show="loading" id="divLoading" class="show"></div>
+      <button type="submit" ng-click="viewTitoLicence(clientInfoForm,clientInfo)" class="btn btn-success" >Submit</button>
+    </form>
+    <h2>All licence</h2>
+    <table id="licenceTable">
+        <tr ng-if="licenceResultArray">
+          <th>Licence Id</th>
+          <th>Validity</th>
+          <th>Client Type</th>
+          <th>Host Name</th>
+          <th>Is Trial Licence</th>
+          <th>Show All Data</th>
+        </tr>
+        <tr ng-repeat="result in licenceResultArray">
+          <td>{{result._id}}</td>
+          <td>{{result.validity}}</td>
+          <td>{{result.deviceInfo.clientType}}</td>
+          <td>{{result.deviceInfo.hostName}}</td>
+          <td>{{result.isTrial}}</td>
+          <td><button type="button" ng-click="showFullinfo(result,$index)" class="btn btn-success" >Show</button></td>
+        </tr> 
+      </table>
+  <div class="form-group" ng-if="showingIndex !==(-1)">
+      <h2 class="center" >Complete Detail JSON </h2>
+      <p class="detaildiv" >{{fullInfo}}</p>
+    </div>
+  </div>
+</div>
+</body>
+
+<script>
+var app = angular.module('myApp', []);
+
+app.controller('MainCtrl', function ($scope, $http, $location) {
+
+  const appName = ['retail', 'restaurant', 'crm'];
+
+  // const BASE_URL = $location.$$absUrl;
+  const BASE_URL = "http://localhost:8800/";
+
+  console.log(BASE_URL);
+  $scope.loading = false;
+  $scope.clientInfo = {};
+  $scope.formSubmitted = false;
+  $scope.changeSID = function (event) {
+    $scope.changeID(event, 'serverID');
+  }
+  $scope.changeCID = function (event) {
+    $scope.changeID(event, 'clientID');
+  }
+  $scope.changeID = function (event, ID) {
+    // for delete and backspace
+    if (event.keyCode === 8 || event.keyCode === 46) {
+      return;
+    }
+    if ($scope.clientInfo[ID]) {
+      var len = $scope.clientInfo[ID].length;
+      if (len == 2) {
+        $scope.clientInfo[ID] += "-";
+      }
+      if (len == 5) {
+        $scope.clientInfo[ID] += "-";
+      }
+      if (len == 8) {
+        $scope.clientInfo[ID] += "-";
+      }
+      if (len == 11) {
+        $scope.clientInfo[ID] += "-";
+      }
+      if (len == 14) {
+        $scope.clientInfo[ID] += "-";
+      }
+    }
+  }
+
+  $scope.GrantTab = 'grantLicence';
+  $scope.toggelView = function (arg) {
+
+    $scope.GrantTab = arg;
+    $scope.gLInfo = {};
+    $scope.licenceResultArray = [];
+    $scope.clientInfo = {};
+    $scope.showingIndex =-1;
+  }
+  $scope.grantLicence = function (clientInfoForm, clientInfo) {
+    $scope.formSubmitted = true;
+    if (!$scope.clientInfo.isTrial)
+      $scope.clientInfo.isTrial = false;
+    if (clientInfoForm.$valid) {
+      $scope.loading = true;
+      $http.post(BASE_URL + "grantLicence", clientInfo)
+        .then(function (response) {
+          $scope.loading = false;
+          //First function handles success
+          console.log(response);
+          $scope.clientInfo = {};
+          $scope.formSubmitted = false;
+          alert("success");
+        }, function (response) {
+          $scope.loading = false;
+          //Second function handles error
+          console.log(response);
+          alert('Please check the client details');
+        });
+    }
+  }
+  $scope.licenceResultArray = [];
+  $scope.getLicence = function (gLInfoForm, gLInfo) {
+    $scope.licenceResultArray = [];
+    $scope.formSubmitted = true;
+    if (gLInfoForm.$valid) {
+      $scope.loading = true;
+
+      $http({
+        method: 'POST',
+        url: BASE_URL + "getLicenceDoc",
+        data: gLInfo,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        }
+      }).then(function (response) {
+        $scope.loading = false;
+
+        $scope.gLInfo = {};
+        $scope.formSubmitted = false;
+        console.log(response);
+        if (typeof response.data != "object") {
+          alert("Failed to get licence details" + response.data);
+          return;
+        }
+
+        let result = response.data.result;
+        $scope.licenceResultArray = result;
+        let count = 0;
+        for (let i = 0; i < result.length; i++) {
+          if (typeof result[i].data === "object") {
+            count++;
+            break;
+          }
+        }
+        if (!count) {
+          alert("Db does't exist contect support team");
+          return;
+        }
+
+      }).catch(function (err) {
+        $scope.loading = false;
+        alert('Failed to get licence info' + err);
+        console.log(err);
+      });
+    }
+  }
+  $scope.viewTitoLicence = function (gLInfoForm, gLInfo) {
+    $scope.licenceResultArray = [];
+    $scope.formSubmitted = true;
+    if (gLInfoForm.$valid) {
+      $scope.loading = true;
+
+      $http({
+        method: 'POST',
+        url: BASE_URL + "viewTitoLicence",
+        data: gLInfo,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        }
+      }).then(function (response) {
+        $scope.loading = false;
+
+        $scope.gLInfo = {};
+        $scope.formSubmitted = false;
+        console.log(response);
+        if (typeof response.data != "object") {
+          alert("Failed to get licence details" + response.data);
+          return;
+        }
+        $scope.licenceResultArray = response.data;
+
+        if (!licenceResultArray.length) {
+          alert("Db does't exist contect support team");
+          return;
+        }
+
+      }).catch(function (err) {
+        $scope.loading = false;
+        alert('Failed to get licence info' + err);
+        console.log(err);
+      });
+    }
+  }
+  $scope.showingIndex = -1;
+  $scope.showFullinfo = function(result,index){
+    
+    if($scope.showingIndex ==index){
+      $scope.fullInfo = '';
+      $scope.showingIndex = -1;
+    }else{
+      $scope.fullInfo = result;
+      $scope.showingIndex = index;
+    }
+    
+  }
+});
+
+</script>
+
+</html>

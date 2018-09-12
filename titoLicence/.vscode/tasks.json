@@ -1,0 +1,25 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    // "options": {
+    //     "cwd": "."
+    // },
+    "tasks": [
+        {
+            "label": "pgserver",
+            "type": "shell",
+            // "tsconfig": "PGServerJs\\tsconfig.json",
+            // "command": "E:/wsClone/PGServerJs/node_modules/.bin/tsc.cmd -p E:/wsClone/PGServerJs",
+            // "command": "${workspaceRoot}/PGServerJs/node_modules/.bin/tsc.cmd -p ${workspaceRoot}/PGServerJs",
+            "command": "${workspaceFolder}/node_modules/.bin/tsc -p ${workspaceFolder}/PGServerJs",
+            "windows": {
+                "command": "d:/titoLicence/node_modules/.bin/tsc.cmd -p d:/titoLicence/tsconfig.json"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
